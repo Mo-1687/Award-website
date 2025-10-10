@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Card from "../Card/Card";
 
 const TiltCard = ({
@@ -13,13 +13,13 @@ const TiltCard = ({
 
   const itemRef = useRef<HTMLDivElement>(null)
 
-  function handleMouseMove(e){
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     if(!itemRef.current) return
     const {left, height, top, width} = itemRef.current.getBoundingClientRect()
     
     // Get Relative X and Y
     const relativeX = (e.clientX - left) / width
-    const relativeY = (e.clientY - top) / width
+    const relativeY = (e.clientY - top) / height
 
     // Get Tilt 
     const tiltX = (relativeX - 0.5) * -20
@@ -29,6 +29,7 @@ const TiltCard = ({
 
 
   }
+
   function handleMouseLeave(){
    setTransFormStyle("") 
   }

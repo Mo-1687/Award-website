@@ -20,19 +20,15 @@ const HeroSection = () => {
 
   const upComingVideo: number = (currentIndex % totalVideo) + 1;
 
-  
-
   useEffect(() => {
-    if (loadedVideo === totalVideo ) {
+    if (loadedVideo === totalVideo) {
       setIsLoading(false);
     }
   }, []);
 
-
   function handleVDClick() {
     setIsClicked(true);
     setCurrentIndex(upComingVideo);
-    
   }
 
   function handleLoadedVideo() {
@@ -60,9 +56,8 @@ const HeroSection = () => {
               ease: "power1.inOut",
               onStart: () => nextVideoRef.current?.play(),
               onComplete: () => {
-                setBackgroundIndex(currentIndex)
-                
-              }
+                setBackgroundIndex(currentIndex);
+              },
             },
             0
           )
@@ -78,7 +73,7 @@ const HeroSection = () => {
           );
       }
     },
-    { dependencies: [isClicked, currentIndex], revertOnUpdate: true }
+    { dependencies: [isClicked, currentIndex] }
   );
 
   useGSAP(

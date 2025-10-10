@@ -7,23 +7,23 @@ const About = () => {
   gsap.registerPlugin(ScrollTrigger);
 
   useGSAP(() => {
-    const tl = gsap
-      .timeline({
-        scrollTrigger: {
-          trigger: "#clip",
-          start: "center center ",
-          end: "+=800 center",
-          scrub: 0.5,
-          pin: true,
-          pinSpacing: true,
-        },
-      })
-      .to(".mask-clip-path", {
-        width: "100vw",
-        height: "100vh",
-        borderRadius: 0,
-      });
-  });
+  gsap
+    .timeline({
+      scrollTrigger: {
+        trigger: "#clip",
+        start: "center center ",
+        end: "+=800 center",
+        scrub: 0.5,
+        pin: true,
+        pinSpacing: true,
+      },
+    })
+    .to(".mask-clip-path", {
+      width: "100vw",
+      height: "100vh",
+      borderRadius: 0,
+    });
+});
 
   return (
     <section id="about" className=" min-h-screen w-screen ">
