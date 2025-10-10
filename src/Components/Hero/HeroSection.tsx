@@ -39,42 +39,44 @@ const HeroSection = () => {
     return `videos/hero-${index}.mp4`;
   }
 
-  useGSAP(
-    () => {
-      if (isClicked) {
-        const tl = gsap.timeline();
+ useGSAP(
+   () => {
+     if (isClicked) {
+       const tl = gsap.timeline();
 
-        tl.set("#next-video", { visibility: "visible" })
-          .to(
-            "#next-video",
-            {
-              transformOrigin: "center center",
-              scale: 1,
-              width: "100%",
-              height: "100%",
-              duration: 1,
-              ease: "power1.inOut",
-              onStart: () => nextVideoRef.current?.play(),
-              onComplete: () => {
-                setBackgroundIndex(currentIndex);
-              },
-            },
-            0
-          )
-          .from(
-            "#preview-video",
-            {
-              transformOrigin: "center center",
-              scale: 0,
-              duration: 1,
-              ease: "power1.inOut",
-            },
-            0
-          );
-      }
-    },
-    { dependencies: [isClicked, currentIndex] }
-  );
+       tl.set("#next-video", { visibility: "visible" })
+         .to(
+           "#next-video",
+           {
+             transformOrigin: "center center",
+             scale: 1,
+             width: "100%",
+             height: "100%",
+             duration: 1,
+             ease: "power1.inOut",
+             onStart: () => {
+               nextVideoRef.current?.play();
+             },
+             onComplete: () => {
+               setBackgroundIndex(currentIndex);
+             },
+           },
+           0
+         )
+         .from(
+           "#preview-video",
+           {
+             transformOrigin: "center center",
+             scale: 0,
+             duration: 1,
+             ease: "power1.inOut",
+           },
+           0
+         );
+     }
+   },
+   { dependencies: [isClicked, currentIndex] }
+ );
 
   useGSAP(
     () => {

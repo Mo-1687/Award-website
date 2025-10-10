@@ -6,7 +6,7 @@ import Button from "../Button/Button";
 const Story = () => {
   const entranceRef = useRef<HTMLImageElement>(null);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLImageElement>) => {
     if (!entranceRef.current) return;
     const { clientX, clientY } = e;
     const { left, top, width, height } =

@@ -7,7 +7,6 @@ import { BiPauseCircle, BiPlayCircle } from "react-icons/bi";
 
 const Navbar = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [isIndicatorActive, setIsIndicatorActive] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isNavVisible, setIsNavVisible] = useState(true);
 
@@ -15,7 +14,6 @@ const Navbar = () => {
   const audioElementRef = useRef<HTMLAudioElement>(null);
 
   function toggleIndicator() {
-    setIsIndicatorActive((prev) => !prev);
     setIsAudioPlaying((prev) => !prev);
   }
 
@@ -49,6 +47,7 @@ const Navbar = () => {
       duration: 0.2,
     });
   }, [isNavVisible]);
+
   return (
     <div
       ref={navContainerRef}
@@ -82,7 +81,6 @@ const Navbar = () => {
               toggleIndicator,
               audioElementRef,
             })}
-            
           </div>
         </nav>
       </header>
@@ -99,7 +97,7 @@ function playAudio({
 }: {
   isAudioPlaying: boolean;
   toggleIndicator: () => void;
-  audioElementRef: React.RefObject<HTMLAudioElement> | null;
+  audioElementRef: React.RefObject<HTMLAudioElement | null>;
 }) {
   return (
     <div className="flex items-center justify-center  ml-3">
