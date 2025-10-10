@@ -1,17 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import Button from "../Button/Button";
 import { FaLocationArrow } from "react-icons/fa";
 import { ScrollTrigger } from "gsap/all";
 
-const HeroSection = () => {
+const HeroSection = ({setIsLoading, isLoading}: {setIsLoading: (loading: boolean) => void, isLoading: boolean}) => {
   gsap.registerPlugin(ScrollTrigger);
 
   const [currentIndex, setCurrentIndex] = useState(1);
   const [backgroundIndex, setBackgroundIndex] = useState(1);
   const [isClicked, setIsClicked] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [loadedVideo, setLoadedVideo] = useState(0);
 
   const totalVideo = 4;
@@ -23,6 +22,7 @@ const HeroSection = () => {
 
   //  Properly watch loadedVideo changes
   useEffect(() => {
+    setIsLoading(true);
     if (loadedVideo >= totalVideo) {
       setIsLoading(false);
     }
@@ -117,7 +117,7 @@ const HeroSection = () => {
     { dependencies: [isClicked, currentIndex] }
   );
 
-  // FIX 4: Properly cleanup ScrollTrigger
+  //   cleanup ScrollTrigger
   useGSAP(
     () => {
       if (!isLoading) {
@@ -149,15 +149,7 @@ const HeroSection = () => {
 
   return (
     <div id="nexus" className="relative h-dvh w-screen overflow-x-hidden">
-      {isLoading && (
-        <div className="flex-center absolute z-[100] h-dvh w-screen overflow-hidden bg-violet-50">
-          <div className="three-body">
-            <div className="three-body__dot"></div>
-            <div className="three-body__dot"></div>
-            <div className="three-body__dot"></div>
-          </div>
-        </div>
-      )}
+      
       <div
         id="video-frame"
         className="relative h-dvh w-screen overflow-hidden rounded-lg bg-blue-50 z-10"
