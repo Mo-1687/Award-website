@@ -76,7 +76,10 @@ const HeroSection = () => {
       if (isClicked) {
         const tl = gsap.timeline();
 
-        tl.set("#next-video", { visibility: "visible" })
+        tl.set("#next-video", {
+          visibility: "visible",
+          scale: 0,
+        })
           .to(
             "#next-video",
             {
