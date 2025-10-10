@@ -11,73 +11,110 @@ const HeroSection = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [backgroundIndex, setBackgroundIndex] = useState(1);
   const [isClicked, setIsClicked] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [loadedVideo, setLoadedVideo] = useState(0);
 
   const totalVideo = 4;
   const nextVideoRef = useRef<HTMLVideoElement | null>(null);
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
+  const loadedVideosRef = useRef(new Set<number>());
 
   const upComingVideo: number = (currentIndex % totalVideo) + 1;
 
+  //  Properly watch loadedVideo changes
   useEffect(() => {
-    if (loadedVideo === totalVideo) {
+    if (loadedVideo >= totalVideo) {
       setIsLoading(false);
     }
+  }, [loadedVideo]);
+
+  //  Preload all videos on mount
+  useEffect(() => {
+    const preloadVideos = async () => {
+      const promises = [];
+      for (let i = 1; i <= totalVideo; i++) {
+        const video = document.createElement("video");
+        video.src = getVideoSrc(i);
+        video.preload = "auto";
+        promises.push(
+          new Promise((resolve) => {
+            video.onloadeddata = () => {
+              loadedVideosRef.current.add(i);
+              setLoadedVideo(loadedVideosRef.current.size);
+              resolve(null);
+            };
+            video.onerror = () => {
+              console.error(`Failed to load video ${i}`);
+              resolve(null);
+            };
+          })
+        );
+      }
+      await Promise.all(promises);
+    };
+
+    preloadVideos();
   }, []);
 
   function handleVDClick() {
     setIsClicked(true);
     setCurrentIndex(upComingVideo);
-  }
 
-  function handleLoadedVideo() {
-    setLoadedVideo((prev) => prev + 1);
+    // Reset click state after animation
+    setTimeout(() => {
+      setIsClicked(false);
+    }, 1000);
   }
 
   function getVideoSrc(index: number) {
     return `videos/hero-${index}.mp4`;
   }
 
- useGSAP(
-   () => {
-     if (isClicked) {
-       const tl = gsap.timeline();
+  // cleanup for GSAP animations
+  useGSAP(
+    () => {
+      if (isClicked) {
+        const tl = gsap.timeline();
 
-       tl.set("#next-video", { visibility: "visible" })
-         .to(
-           "#next-video",
-           {
-             transformOrigin: "center center",
-             scale: 1,
-             width: "100%",
-             height: "100%",
-             duration: 1,
-             ease: "power1.inOut",
-             onStart: () => {
-               nextVideoRef.current?.play();
-             },
-             onComplete: () => {
-               setBackgroundIndex(currentIndex);
-             },
-           },
-           0
-         )
-         .from(
-           "#preview-video",
-           {
-             transformOrigin: "center center",
-             scale: 0,
-             duration: 1,
-             ease: "power1.inOut",
-           },
-           0
-         );
-     }
-   },
-   { dependencies: [isClicked, currentIndex] }
- );
+        tl.set("#next-video", { visibility: "visible" })
+          .to(
+            "#next-video",
+            {
+              transformOrigin: "center center",
+              scale: 1,
+              width: "100%",
+              height: "100%",
+              duration: 1,
+              ease: "power1.inOut",
+              onStart: () => {
+                nextVideoRef.current?.play();
+              },
+              onComplete: () => {
+                setBackgroundIndex(currentIndex);
+              },
+            },
+            0
+          )
+          .from(
+            "#preview-video",
+            {
+              transformOrigin: "center center",
+              scale: 0,
+              duration: 1,
+              ease: "power1.inOut",
+            },
+            0
+          );
 
+        return () => {
+          tl.kill();
+        };
+      }
+    },
+    { dependencies: [isClicked, currentIndex] }
+  );
+
+  // FIX 4: Properly cleanup ScrollTrigger
   useGSAP(
     () => {
       if (!isLoading) {
@@ -85,7 +122,8 @@ const HeroSection = () => {
           clipPath: "polygon(14% 0%, 72% 0%, 90% 90%, 0% 100%)",
           borderRadius: "0 0 40% 10%",
         });
-        gsap.from("#video-frame", {
+
+        const animation = gsap.from("#video-frame", {
           clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
           borderRadius: "0 0 0 0",
           ease: "power1.inOut",
@@ -96,6 +134,11 @@ const HeroSection = () => {
             scrub: true,
           },
         });
+
+        return () => {
+          animation.scrollTrigger?.kill();
+          animation.kill();
+        };
       }
     },
     { dependencies: [isLoading] }
@@ -126,10 +169,10 @@ const HeroSection = () => {
                 src={getVideoSrc(upComingVideo)}
                 loop
                 muted
+                playsInline
                 ref={previewVideoRef}
                 id="preview-video"
                 className="size-64 origin-center scale-150 object-cover object-center"
-                onLoadedData={handleLoadedVideo}
               ></video>
             </div>
           </div>
@@ -139,7 +182,7 @@ const HeroSection = () => {
             className="absolute-center size-64 invisible object-center object-cover z-20 absolute"
             loop
             muted
-            onLoadedData={handleLoadedVideo}
+            playsInline
             id="next-video"
             src={getVideoSrc(currentIndex)}
             ref={nextVideoRef}
@@ -151,9 +194,9 @@ const HeroSection = () => {
             loop
             autoPlay
             muted
+            playsInline
             id="background-video"
             className="absolute left-0 top-0 size-full object-center object-cover"
-            onLoadedData={handleLoadedVideo}
           ></video>
         </div>
         <h1 className="special-font hero-heading absolute bottom-0 right-5 z-40 text-blue-75">
