@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import gsap from "gsap";
 import Card from "../Card/Card";
 
 const TiltCard = ({
@@ -8,32 +9,47 @@ const TiltCard = ({
   children: React.ReactNode;
   className?: string;
 }) => {
+  const itemRef = useRef<HTMLDivElement>(null);
 
-  const [transFormStyle, setTransFormStyle] = useState("")
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!itemRef.current) return;
+    const { left, height, top, width } =
+      itemRef.current.getBoundingClientRect();
 
-  const itemRef = useRef<HTMLDivElement>(null)
-
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if(!itemRef.current) return
-    const {left, height, top, width} = itemRef.current.getBoundingClientRect()
-    
     // Get Relative X and Y
-    const relativeX = (e.clientX - left) / width
-    const relativeY = (e.clientY - top) / height
+    const relativeX = (e.clientX - left) / width;
+    const relativeY = (e.clientY - top) / height;
 
-    // Get Tilt 
-    const tiltX = (relativeX - 0.5) * -20
-    const tiltY = (relativeY - 0.5) * 20
+    // Get Tilt
+    const tiltX = (relativeX - 0.5) * -20;
+    const tiltY = (relativeY - 0.5) * 20;
 
-    setTransFormStyle(`perspective(700px) rotateX(${tiltY}deg) rotateY(${tiltX}deg) scale3D(0.95, 0.95, 0.95)`)
+    gsap.to(itemRef.current, {
+      transform: `perspective(700px) rotateX(${tiltY}deg) rotateY(${tiltX}deg) scale3D(0.95, 0.95, 0.95)`,
+      duration: 0, // Instant update for responsiveness
+      overwrite: "auto",
+    });
+  };
 
+  const handleMouseLeave = () => {
+    if (!itemRef.current) return;
+    gsap.to(itemRef.current, {
+      transform: "",
+      duration: 0.3, // Smooth reset
+      ease: "power1.out",
+    });
+  };
 
-  }
-
-  function handleMouseLeave(){
-   setTransFormStyle("") 
-  }
-  return <div className={` ${className}`} style={{transform: transFormStyle}} ref={itemRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>{children}</div>;
+  return (
+    <div
+      className={` ${className}`}
+      ref={itemRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+    </div>
+  );
 };
 const Features = () => {
   return (
